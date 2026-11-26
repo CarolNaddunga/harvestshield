@@ -18,7 +18,7 @@ Not implemented: staff account provisioning, password changes, role editing or q
 
 [Deploy HARVESTSHIELD to Render](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2FCarolNaddunga%2Fharvestshield)
 
-Use the root `render.yaml` Blueprint to create the free web service and free PostgreSQL database together. Enter two distinct passwords of at least 16 characters when Render prompts for `HARVESTSHIELD_ADMIN_PASSWORD` and `HARVESTSHIELD_CLERK_PASSWORD`. They remain in Render environment settings, outside GitHub. The database expires after 30 days; no paid resources are requested. Wait for the service to report Live and use the HTTPS URL Render assigns.
+Use the root `render.yaml` Blueprint to create the free web service with an external PostgreSQL database (Neon Free is the selected route). This avoids Render’s one-free-database limit and leaves Book Borrower and its database untouched. Enter the Neon PostgreSQL connection URI as `DATABASE_URL`, including its SSL parameters, directly in Render. Also enter two distinct passwords of at least 16 characters for `HARVESTSHIELD_ADMIN_PASSWORD` and `HARVESTSHIELD_CLERK_PASSWORD`. These values remain in Render, outside GitHub. No Render database or paid resource is created by this Blueprint. Wait for the service to report Live and use the HTTPS URL Render assigns.
 
 ## Windows PowerShell: Docker Desktop
 

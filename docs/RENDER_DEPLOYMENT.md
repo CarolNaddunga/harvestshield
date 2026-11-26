@@ -13,38 +13,31 @@ docker push carolnaddunga/harvestshield:2026-11-25
 
 Render requires linux/amd64 images. On Windows ARM or Apple silicon this build uses Docker's cross-platform support. Native local lab builds can continue using their host architecture. The image copies app/scripts/requirements only. Runtime databases, .env files, evidence and tests are excluded; no preview password is embedded.
 
-## Render resources (Free only)
+## Current route: Render Free web service + Neon Free database
 
-1. Create a new **PostgreSQL** instance named `harvestshield-db`, on the **Free** plan. Use the same region as the app. Do not change or delete another project's existing database.
-2. Render allows one free PostgreSQL instance per workspace. If that allowance is already in use, stop and resolve it without upgrading or deleting existing data.
-3. Create a **Web Service → Existing Image** using `docker.io/carolnaddunga/harvestshield:2026-11-25` after its push is verified. Choose **Free**.
-4. Set health check path `/health` and port `10000` (the app reads Render's PORT environment variable).
-5. Enter environment values in Render, never source control or chat:
+Render's existing free database `book-borrower-db` belongs to another active project and must remain untouched. The root `render.yaml` now defines only HARVESTSHIELD's free web service. It no longer attempts to create `harvestshield-db`.
 
-| Key | Value |
-| --- | --- |
-| `DATABASE_URL` | The new Render PostgreSQL instance's internal connection URL, entered directly in Render |
-| `HARVESTSHIELD_SECURE_COOKIES` | `1` |
-| `HARVESTSHIELD_ADMIN_PASSWORD` | A unique administrator password of at least 16 characters, chosen privately |
-| `HARVESTSHIELD_CLERK_PASSWORD` | A different clerk password of at least 16 characters, chosen privately |
+1. Create/sign in to a Neon account at https://console.neon.tech/ . Choose the Free plan. Name the project `harvestshield`. If offered, use PostgreSQL 16 (the tested version) and an AWS US West/Oregon region near the Render service. Do not add a payment method or select a paid plan.
+2. In the Neon project, select Connect. Copy the PostgreSQL connection URI, including `sslmode=require` and any other supplied connection-security parameters. Copy the URI alone, not a surrounding psql command.
+3. In Render's HARVESTSHIELD Blueprint or service environment, set `DATABASE_URL` to that URI. Enter it directly in Render; never put it in GitHub, a Docker image, a screenshot or chat.
+4. Set `HARVESTSHIELD_SECURE_COOKIES=1`. Choose two different passwords of at least 16 characters for `HARVESTSHIELD_ADMIN_PASSWORD` and `HARVESTSHIELD_CLERK_PASSWORD`.
+5. Select the updated GitHub commit in the existing HARVESTSHIELD Blueprint and retry its sync. The configuration should show only one free web service and no database-creation action. If Render does not prompt for the new DATABASE_URL during retry, add it through the service's environment settings or start the updated Blueprint form from the repository's Deploy link. Never delete Book Borrower resources to make room.
+6. Wait for Live, open the exact HTTPS URL Render returns, and verify `/health`, login and registration. Sign in as `admin` with the administrator password; `clerk01`/`clerk02` use the clerk password. New farmers register their own accounts. Use only synthetic information.
+7. Create a record and verify persistence after a controlled service restart. Back up important exam evidence separately.
 
-The existing entry point is `python -m scripts.serve --host 0.0.0.0`; no manual seed command or Docker CMD override is needed. First startup creates synthetic fixtures and configures admin/clerk credentials from the environment. Existing accounts/passwords are not overwritten on a restart. Seeded farmer credentials are random and inaccessible; new farmers use registration. Never reuse the known local preview password online. Database credentials and startup passwords must never be baked into the image.
+The app’s `python -m scripts.serve --host 0.0.0.0` entry point reads Render's PORT, initialises a fresh hosted database and keeps existing credentials unchanged on restarts. Seeded farmer credentials are random and inaccessible; there is no known development password online. No existing Mac or Windows database is automatically uploaded.
 
-6. Deploy, wait for **Live**, open the exact HTTPS URL Render returns and check `/health`, sign-in and registration.
-7. Sign in as `admin` with your chosen admin password; `clerk01` and `clerk02` use your chosen clerk password. New farmers create their own accounts. Use only synthetic information in the exam project.
-8. Create a record and verify it remains after a controlled service restart before relying on the hosted copy.
+The prebuilt Docker image route remains available using the same environment values, but the linked GitHub Blueprint is the current deployment route. Rebuild images after source changes before deploying them.
 
 ## Free-plan constraints
 
-Render's free web service sleeps after inactivity and takes time to wake. Its filesystem is ephemeral, which is why the app must use DATABASE_URL rather than hosted SQLite. The free PostgreSQL database expires after 30 days; it does not include managed backups. Export data before expiry or move it elsewhere. Do not enable a paid plan or supply payment approval as part of this deployment.
+Render's free service can sleep and needs time to wake. Neon Free has usage and storage limits; it currently requires no credit card and has no fixed time limit. The two services' free-plan conditions can change, so verify the plan selections before deployment. The former Render PostgreSQL 30-day expiry does not apply to this external Neon setup.
 
-This app does not move your existing Mac or Windows database online. New hosted data stays in the separately configured PostgreSQL database. Keep the lab and hosted application's data/configuration distinct.
-
-References checked 25 November 2026:
-- https://render.com/docs/deploying-an-image
-- https://render.com/docs/web-services
+References checked 26 November 2026:
+- https://neon.com/pricing
+- https://neon.com/docs/connect/connect-from-any-app
 - https://render.com/docs/free
-- https://www.psycopg.org/psycopg3/docs/
+- https://render.com/docs/blueprint-spec
 
 ## Development verification
 
