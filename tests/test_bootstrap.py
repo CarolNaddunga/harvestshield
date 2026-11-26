@@ -31,3 +31,19 @@ class BootstrapTests(unittest.TestCase):
         for admin,clerk in [('', ''),('too-short','long-clerk-secret-here'),('shared-secret-password','shared-secret-password')]:
             with self.subTest(admin_length=len(admin)), self.assertRaises(ValueError): bootstrap(self.path,admin,clerk)
         with connect(self.path) as db: self.assertEqual(db.execute('SELECT COUNT(*) FROM users').fetchone()[0],0)
+
+    def test_startup_error_identifies_field_without_disclosing_password(self):
+        cases=[
+            ('','a-valid-clerk-password', 'HARVESTSHIELD_ADMIN_PASSWORD is missing'),
+            ('a-valid-admin-password','','HARVESTSHIELD_CLERK_PASSWORD is missing'),
+            ('short-admin','a-valid-clerk-password','HARVESTSHIELD_ADMIN_PASSWORD has 11 characters'),
+            ('a-valid-admin-password','short-clerk','HARVESTSHIELD_CLERK_PASSWORD has 11 characters'),
+            ('same-private-password','same-private-password','passwords are identical'),
+        ]
+        for admin,clerk,expected in cases:
+            with self.subTest(expected=expected),self.assertRaises(ValueError) as error:
+                bootstrap(self.path,admin,clerk)
+            message=str(error.exception)
+            self.assertIn(expected,message)
+            for value in (admin,clerk):
+                if value: self.assertNotIn(value,message)

@@ -11,8 +11,17 @@ def bootstrap(url,admin_password,clerk_password):
         exists=db.execute('SELECT COUNT(*) FROM users').fetchone()[0]
     if exists:
         return False
-    if len(admin_password)<16 or len(clerk_password)<16 or admin_password==clerk_password:
-        raise ValueError('Set distinct administrator and clerk passwords of at least 16 characters in the hosting environment.')
+    problems=[]
+    for key,password in (('HARVESTSHIELD_ADMIN_PASSWORD',admin_password),
+                         ('HARVESTSHIELD_CLERK_PASSWORD',clerk_password)):
+        if not password:
+            problems.append(f'{key} is missing or empty. Set its VALUE in Render Environment.')
+        elif len(password)<16:
+            problems.append(f'{key} has {len(password)} characters; at least 16 are required.')
+    if admin_password and clerk_password and admin_password==clerk_password:
+        problems.append('The administrator and clerk passwords are identical. Choose two different passwords.')
+    if problems:
+        raise ValueError('Hosted account configuration: '+' '.join(problems))
     # Fixture accounts never receive any known development password.
     seed(url,secrets.token_urlsafe(48))
     with connect(url) as db:
