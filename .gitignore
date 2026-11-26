@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+data/
+.env
+.DS_Store
+
+.env.*
+*.sqlite*
+*.db
+docs/test-results.txt
+user=*
