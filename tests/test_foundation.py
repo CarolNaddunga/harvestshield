@@ -67,7 +67,7 @@ class WebTests(AioHTTPTestCase):
         body = await response.text()
         self.assertIn('HARVESTSHIELD', body)
         self.assertIn('2,610', body)
-        self.assertNotIn('Demo Farmer 01', body)
+        self.assertNotIn('Farmer 01', body)
         self.assertNotIn('scrypt$', body)
         self.assertIn("frame-ancestors 'none'", response.headers['Content-Security-Policy'])
         self.assertEqual(response.headers['Cache-Control'], 'no-store')

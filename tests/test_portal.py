@@ -38,7 +38,7 @@ class PortalTests(AioHTTPTestCase):
         for path in ['/farmers/2','/deliveries/2','/audit','/users','/deliveries/new']:
             self.assertEqual((await self.client.get(path)).status,403,path)
         body=await (await self.client.get('/deliveries')).text()
-        self.assertIn('Demo Farmer 01',body); self.assertNotIn('Demo Farmer 02',body)
+        self.assertIn('Farmer 01',body); self.assertNotIn('Farmer 02',body)
         self.assertEqual((await self.client.post('/deliveries/1/status',data={'status':'approved'})).status,403)
 
     async def test_end_to_end_clerk_farmer_admin(self):
@@ -105,7 +105,7 @@ class PortalTests(AioHTTPTestCase):
         with connect(self.path) as db: db.execute('UPDATE users SET display_name=? WHERE id=1',('<script>alert(1)</script>',))
         await self.login('farmer01'); body=await (await self.client.get('/farmers/1')).text()
         self.assertNotIn('<script>',body); self.assertIn('&lt;script&gt;',body)
-        self.assertIn('No deliveries found',await (await self.client.get('/deliveries?q=Demo%20Farmer%2002')).text())
+        self.assertIn('No deliveries found',await (await self.client.get('/deliveries?q=Farmer%2002')).text())
         await self.login('admin'); body=await (await self.client.get('/deliveries/1')).text()
         for data,expected in [({'csrf':'bad','status':'approved'},403),({'csrf':token(body),'status':'arbitrary'},400)]:
             self.assertEqual((await self.client.post('/deliveries/1/status',data=data)).status,expected)

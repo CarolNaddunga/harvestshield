@@ -65,7 +65,7 @@ On macOS/Linux use `python3 -m venv .venv` and `.venv/bin/python` instead. The d
 ## Try the actual workflow
 
 1. Sign in as `clerk01`; select Record a delivery.
-2. Choose Demo Farmer 01, maize, 150 kg, and a valid date. Submit.
+2. Choose Farmer 01, maize, 150 kg, and a valid date. Submit.
 3. Confirm UGX 180,000 and pending status. The clerk has no approval action.
 4. Sign out and sign in as `farmer01`. Find and open the delivery.
 5. Sign out and sign in as `farmer02`: that delivery must be absent; its direct URL is forbidden.

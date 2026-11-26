@@ -81,12 +81,12 @@ def seed(path, demo_password):
         districts = ["Mukono", "Kayunga", "Buikwe", "Luwero", "Mpigi"]
         for i in range(1, 11):
             db.execute("INSERT INTO users VALUES (?, ?, ?, 'farmer', ?)",
-                       (i, f"farmer{i:02}", f"Demo Farmer {i:02}", hash_password(demo_password)))
+                       (i, f"farmer{i:02}", f"Farmer {i:02}", hash_password(demo_password)))
             db.execute("INSERT INTO farmers VALUES (?, ?, ?, ?)",
                        (i, i, f"GF-{i:03}", districts[(i-1) % 5]))
-        for i, username, name, role in [(11,"clerk01","Demo Clerk 01","clerk"),
-                                      (12,"clerk02","Demo Clerk 02","clerk"),
-                                      (13,"admin","Demo Administrator","admin")]:
+        for i, username, name, role in [(11,"clerk01","Clerk 01","clerk"),
+                                      (12,"clerk02","Clerk 02","clerk"),
+                                      (13,"admin","Administrator","admin")]:
             db.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?)",
                        (i, username, name, role, hash_password(demo_password)))
         for i in range(1, 19):
